@@ -38,7 +38,7 @@
 
         #endregion
 
-        #region IPublishExclusionsController implementation
+        #region IPublishExclusionsController Implementation
 
         #region Properties
 
@@ -109,12 +109,14 @@
             PublishExclusion exclusion = Repository.PublishExclusions
                                             .Where(pe => pe.PublishingTargetID == context.PublishOptions.PublishingTargets[0])
                                             .Where(pe => pe.PublishModes.Contains(context.PublishOptions.Mode))
-                                            .Where(pe => pe.ExcludedNodes.Exists(p => itemPath.StartsWith(p, StringComparison.OrdinalIgnoreCase)) &&
-                                                !pe.ExclusionOverrides.Exists(p => itemPath.StartsWith(p, StringComparison.OrdinalIgnoreCase)))
+                                            .Where(pe => pe.ExcludedNodes.Exists(p => itemPath.StartsWith(p, StringComparison.OrdinalIgnoreCase)) && 
+                                                  !pe.ExclusionOverrides.Exists(p => itemPath.StartsWith(p, StringComparison.OrdinalIgnoreCase)))
                                             .FirstOrDefault();
 
             if (exclusion != null)
+            {
                 return true;
+            }
 
             return false;
         }

@@ -6,6 +6,7 @@
     using Sitecore.Diagnostics;
     using Sitecore.Events;
     using Sitecore.Pipelines;
+    using Sitecore.PublishExclusions.Constants;
     using System;
 
     /// <summary>
@@ -85,11 +86,16 @@
         public virtual void OnItemDeletedRemote(object sender, EventArgs args)
         {
             Assert.ArgumentNotNull(args, "args");
+
             if (!ShouldExecuteEventHandlers(args))
+            {
                 return;
+            }
 
             ItemDeletedRemoteEventArgs deleteEventArgs = args as ItemDeletedRemoteEventArgs;
+
             Item contextItem = deleteEventArgs.Item as Item;
+            
             ReinitializeRepository(contextItem);
         }
 
@@ -109,11 +115,15 @@
         {
             //Do not run event handlers during a publish
             if (Context.Site != null && Context.Site.Name.Equals("publisher", StringComparison.OrdinalIgnoreCase))
+            {
                 return false;
+            }
 
             //Do not run event handlers during a package installation
             if (Context.Job != null && Context.Job.Name.Equals("install", StringComparison.OrdinalIgnoreCase))
+            {
                 return false;
+            }
 
             return true;
         }
@@ -124,8 +134,9 @@
         /// <param name="item"></param>
         public virtual void ReinitializeRepository(Item item)
         {
-            if (item != null &&
-                (item.TemplateID == SitecoreIDs.Templates.PublishConfiguration || item.TemplateID == SitecoreIDs.Templates.PublishExclusion))
+            //PublishConfiguration Template ID : 
+            //PublisExclusion Template ID : 
+            if (item != null && (item.TemplateID == SitecoreId.TemplateId.PublishConfiguration || item.TemplateID == SitecoreId.TemplateId.PublishExclusion))
             {
                 PublishExclusionsContext.Current.ReInitialize();
             }

@@ -1,0 +1,2 @@
+C:\Code\Experiments\Sitecore-Publish-Exclusions\Code\Sitecore.PublishExclusions.PublishingService\obj\Debug\Sitecore.PublishExclusions.PublishingService.csproj.AssemblyReference.cache
+C:\Code\Experiments\Sitecore-Publish-Exclusions\Code\Sitecore.PublishExclusions.PublishingService\obj\Debug\Sitecore.PublishExclusions.PublishingService.csproj.CoreCompileInputs.cache

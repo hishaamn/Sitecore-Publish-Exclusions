@@ -7,6 +7,7 @@
     using Sitecore.Data.Items;
     using Sitecore.Diagnostics;
     using Sitecore.Globalization;
+    using Sitecore.PublishExclusions.Constants;
     using Sitecore.PublishExclusions.Model;
     using Sitecore.Publishing;
     using System;
@@ -20,7 +21,7 @@
     {
         #region Members
 
-        private Database masterDB = null;
+        private readonly Database masterDB = null;
 
         #endregion
 
@@ -111,11 +112,11 @@
         {
             GlobalConfiguration = new PublishExclusionConfiguration();
 
-            Item configurationItem = masterDB.GetItem(SitecoreIDs.Items.GlobalConfiguration, Language.Parse("en"));
+            Item configurationItem = masterDB.GetItem(SitecoreId.ItemId.ExclusionConfiguration, Language.Parse("en"));
             if (configurationItem != null)
             {
-                GlobalConfiguration.ReturnItemsToPublishQueue = ((CheckboxField)configurationItem.Fields[SitecoreIDs.Fields.ReturnItemsToPublishQueue]).Checked;
-                GlobalConfiguration.ShowContentEditorWarnings = ((CheckboxField)configurationItem.Fields[SitecoreIDs.Fields.ShowContentEditorWarnings]).Checked;
+                GlobalConfiguration.ReturnItemsToPublishQueue = ((CheckboxField)configurationItem.Fields[SitecoreId.FieldId.ReturnToQueue]).Checked;
+                GlobalConfiguration.ShowContentEditorWarnings = ((CheckboxField)configurationItem.Fields[SitecoreId.FieldId.ContentEditorWarning]).Checked;
             }
         }
 
@@ -127,26 +128,31 @@
         {
             PublishExclusions = new List<PublishExclusion>();
 
-            Item exclusionsRepository = masterDB.GetItem(SitecoreIDs.Items.ExclusionsRepository, Language.Parse("en"));
+            Item exclusionsRepository = masterDB.GetItem(SitecoreId.ItemId.ExclusionContainer, Language.Parse("en"));
+
             if (exclusionsRepository == null)
+            {
                 return;
+            }
+
+            var configuredPublishTargets = masterDB.GetItem("/sitecore/system/Publishing targets").GetChildren();
 
             PublishExclusions =
                 exclusionsRepository
                 .GetChildren(ChildListOptions.IgnoreSecurity | ChildListOptions.SkipSorting)
-                .Where(i => i.TemplateID == SitecoreIDs.Templates.PublishExclusion)
+                .Where(i => i.TemplateID == SitecoreId.TemplateId.PublishExclusion)
                 .Select(i =>
                     new PublishExclusion()
                     {
                         Name = i.Name,
-                        PublishingTarget = masterDB.GetItem(i.Fields[SitecoreIDs.Fields.PublishingTarget].Source + i.Fields[SitecoreIDs.Fields.PublishingTarget].Value).Name,
-                        PublishingTargetID = i.Fields[SitecoreIDs.Fields.PublishingTarget].Value,
-                        PublishModes = ((MultilistField)i.Fields[SitecoreIDs.Fields.PublishModes])
+                        PublishingTarget = i.Fields[SitecoreId.FieldId.PublishingTarget].Value,
+                        PublishingTargetID = configuredPublishTargets.FirstOrDefault(f => f.Name.Equals(i.Fields[SitecoreId.FieldId.PublishingTarget].Value)).ID.ToString(),
+                        PublishModes = ((MultilistField)i.Fields[SitecoreId.FieldId.PublishingMode])
                                         .GetItems()
                                         .Select(pm => GetPublishMode(pm.Name))
                                         .ToList(),
-                        ExcludedNodes = GetItemPaths(i, SitecoreIDs.Fields.ExcludedNodes),
-                        ExclusionOverrides = GetCombinedOverrides(i, SitecoreIDs.Fields.ExclusionOverrides)
+                        ExcludedNodes = GetItemPaths(i, SitecoreId.FieldId.ExcludedNode),
+                        ExclusionOverrides = GetCombinedOverrides(i, SitecoreId.FieldId.ExcludedNodeOverride)
                     }
                 )
                 .ToList();
@@ -158,8 +164,8 @@
             {
                 case "full publish": return PublishMode.Full;
                 case "smart publish": return PublishMode.Smart;
-                case "incremental or site publish": return PublishMode.Incremental;
-                case "single item publish": return PublishMode.SingleItem;
+                case "incremental publish": return PublishMode.Incremental;
+                case "single item": return PublishMode.SingleItem;
                 default: return PublishMode.Unknown;
             }
         }

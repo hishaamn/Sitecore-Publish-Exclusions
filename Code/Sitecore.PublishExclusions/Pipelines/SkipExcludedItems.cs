@@ -45,8 +45,8 @@
         {
             try
             {
-                Assert.ArgumentNotNull((object)context, "context");
-                Assert.ArgumentNotNull((object)context.PublishOptions, "context.PublishOptions");
+                Assert.ArgumentNotNull(context, "context");
+                Assert.ArgumentNotNull(context.PublishOptions, "context.PublishOptions");
 
                 if (context.VersionToPublish == null)
                 {
@@ -54,22 +54,30 @@
                     // Case 2: handled case where shared fields of an item should be excluded from publishing
                     if (context.Action == PublishAction.DeleteTargetItem && context.PublishOptions != null)
                     {
-                        Item deletedItem = context.PublishOptions.TargetDatabase.GetItem(context.ItemId);
+                        var deletedItem = context.PublishOptions.TargetDatabase.GetItem(context.ItemId);
+                        
                         if (deletedItem == null)
+                        {
                             return;
+                        }
 
                         context.VersionToPublish = deletedItem;
                     }
                     else if (context.Action == PublishAction.PublishSharedFields && context.PublishOptions != null)
                     {
-                        Item sharedItem = context.PublishOptions.SourceDatabase.GetItem(context.ItemId);
+                        var sharedItem = context.PublishOptions.SourceDatabase.GetItem(context.ItemId);
+
                         if (sharedItem == null)
+                        {
                             return;
+                        }
 
                         context.VersionToPublish = sharedItem;
                     }
                     else
+                    {
                         return;
+                    }
                 }
 
                 PublishingLog.Debug(string.Format("Sitecore.PublishExclusions : SkipExcludedItems processing item - '{0}'", context.VersionToPublish.Paths.Path));
@@ -79,14 +87,18 @@
                 {
                     PublishingLog.Debug(string.Format("Sitecore.PublishExclusions : SkipExcludedItems skipping item - '{0}'", context.VersionToPublish.Paths.Path));
 
-                    string explanation = string.Format(ExplanationTextFormat, context.VersionToPublish.Paths.Path);
-                    context.Result = new PublishItemResult(PublishOperation.Skipped, PublishChildAction.Skip, explanation, PublishExclusionsContext.Current.ReturnItemsToPublishQueue);
+                    var explanation = string.Format(ExplanationTextFormat, context.VersionToPublish.Paths.Path);
+                    
+                    context.Result = new PublishItemResult(PublishOperation.Skipped, PublishChildAction.Allow, explanation, PublishExclusionsContext.Current.ReturnItemsToPublishQueue);
+                    
                     context.AbortPipeline();
                 }
 
                 //if publish action item is shared fields and version to publish has been manually set to an item then set it back to null
                 if (context.Action == PublishAction.PublishSharedFields && context.VersionToPublish != null)
+                {
                     context.VersionToPublish = null;
+                }
             }
             catch (Exception ex)
             {

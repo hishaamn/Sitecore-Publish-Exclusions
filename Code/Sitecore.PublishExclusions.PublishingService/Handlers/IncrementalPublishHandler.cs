@@ -12,7 +12,7 @@
     using Sitecore.Framework.Publishing.ItemIndex;
     using Sitecore.Framework.Publishing.Manifest;
     using Sitecore.Framework.Publishing.ManifestCalculation;
-    using Sitecore.Framework.Publishing.PublisherOperation;
+    using Sitecore.Framework.Publishing.PublisherOperations;
     using Sitecore.Framework.Publishing.PublishJobQueue;
     using Sitecore.Framework.Publishing.Repository;
     using Sitecore.Framework.Publishing.Workflow;
@@ -20,6 +20,7 @@
     using System;
     using System.Collections.Generic;
     using System.Threading;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// Incremental Publish Handler used when doing a Site publish
@@ -93,6 +94,11 @@
             return !job.Options.ItemId.HasValue;
         }
 
+        public override bool CanHandle(PublishJob job, PublishContext publishContext)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Creates a stream of items that are candidates for publishing
         /// </summary>
@@ -124,6 +130,26 @@
                 null);
 
             return (ISourceObservable<CandidateValidationContext>)dnsp;
+        }
+
+        protected override ISourceObservable<CandidateValidationContext> CreatePublishSourceStream(PublishContext publishContext, IPublishCandidateSource publishSourceRepository, IPublishValidator validator, IPublisherOperationService publisherOperationService, CancellationTokenSource errorSource)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override IObservable<CandidateValidationContext> CreateSourceProcessingStream(PublishContext publishContext, IObservable<CandidateValidationContext> publishSourceStream, HashSet<Guid> cloneSourcesLookup, CancellationTokenSource errorSource)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override bool ShouldUpdateTargetSyncState(PublishContext context)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task UpdateTargetSyncState(PublishContext context, IEnumerable<IManifestOperationResult> promotionResults)
+        {
+            throw new NotImplementedException();
         }
 
         #endregion

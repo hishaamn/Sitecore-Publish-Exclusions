@@ -89,7 +89,7 @@
 
                     var explanation = string.Format(ExplanationTextFormat, context.VersionToPublish.Paths.Path);
                     
-                    context.Result = new PublishItemResult(PublishOperation.Skipped, PublishChildAction.Allow, explanation, PublishExclusionsContext.Current.ReturnItemsToPublishQueue);
+                    context.Result = new PublishItemResult(PublishOperation.Skipped, PublishChildAction.Skip, explanation, PublishExclusionsContext.Current.ReturnItemsToPublishQueue);
                     
                     context.AbortPipeline();
                 }

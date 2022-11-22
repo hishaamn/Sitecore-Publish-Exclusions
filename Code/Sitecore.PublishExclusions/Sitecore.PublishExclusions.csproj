@@ -224,9 +224,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Constants\SitecoreId.cs" />
-    <Compile Include="Dialogs\IncludeSubitemForm.cs" />
-    <Compile Include="Dialogs\SaveIncludeSubitem.cs" />
-    <Compile Include="Dialogs\TreeListExEditorFormExtension.cs" />
     <Compile Include="Implementation\PublishExclusionsContext.cs" />
     <Compile Include="Interfaces\IPublishExclusionsController.cs" />
     <Compile Include="Implementation\PublishExclusionsController.cs" />
